@@ -1,0 +1,14 @@
+name: "e2e services"
+
+services:
+  postgres:
+    container_name: e2e-test-db
+    mem_reservation: "512mb"
+    image: postgres
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: ${MAIN_DB_NAME}
+      POSTGRES_USER: ${MAIN_DB_USER}
+      POSTGRES_PASSWORD: ${MAIN_DB_PASSWORD}
+
