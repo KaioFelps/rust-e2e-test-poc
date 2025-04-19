@@ -10,6 +10,7 @@ mod infra;
 
 #[actix_web::main]
 async fn main() -> anyhow::Result<()> {
+    dotenvy::dotenv().expect("Could not load environment variables.");
     let options = Options::get();
 
     let vite = get_vite().await?;
