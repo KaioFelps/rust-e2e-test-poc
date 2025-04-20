@@ -17,15 +17,26 @@ jobs:
               - beta
         steps:
           - uses: actions/checkout@v4
+          - uses: actions/setup-node@v4
+            with:
+              node-version: 22
+              cache: npm
           - run: cp .env.test .env
           - run: rustup update ${{ matrix.toolchain }}
           - run: rustup default ${{ matrix.toolchain }}
           - name: Cache Test Build Artifacts
             uses: Swatinem/rust-cache@v2
+
+          - name: Install node modules
+            run: npm ci
+          - name: Build front-end bundle
+            run: npm run build
+
           - name: Raise docker containers
             run: docker compose up -d
           - name: Check docker containers running
             run: docker ps -a
+
           - run: cargo test --test '*' --verbose --all-features
           - name: Stop docker containers
             if: always()
