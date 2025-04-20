@@ -17,6 +17,7 @@ actix-session = "0.10"
 chrono = "0.4"
 env_logger = "0.11.5"
 log = "0.4"
+async-trait = "0.1"
 sqlx = { version = "0.8", features = [
   "runtime-tokio",
   "tls-rustls-ring-native-roots",
@@ -31,4 +32,3 @@ sqlx = { version = "0.8", features = [
 tokio = {version = "1.44", features = ["fs", "io-std", "test-util", "rt", "rt-multi-thread", "macros"]}
 pretty_assertions = "1"
 rstest = "0.25"
-

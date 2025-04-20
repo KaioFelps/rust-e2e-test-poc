@@ -1,3 +1,4 @@
+use async_trait::async_trait;
 use sqlx::query_as;
 
 use crate::{
@@ -18,6 +19,7 @@ impl<'a> SqlxTodosRepository<'a> {
     }
 }
 
+#[async_trait]
 impl TodosRepository for SqlxTodosRepository<'_> {
     async fn create(&self, draft_todo: DraftTodo) -> anyhow::Result<Todo> {
         let (id,): (i32,) = query_as(
@@ -28,7 +30,7 @@ impl TodosRepository for SqlxTodosRepository<'_> {
         )
         .bind(&draft_todo.title)
         .bind(&draft_todo.content)
-        .bind(&draft_todo.completed)
+        .bind(draft_todo.completed)
         .fetch_one(self.datastore.get_db())
         .await?;
 

@@ -871,6 +871,7 @@ dependencies = [
  "actix-session",
  "actix-web",
  "anyhow",
+ "async-trait",
  "chrono",
  "dotenvy",
  "env_logger",
