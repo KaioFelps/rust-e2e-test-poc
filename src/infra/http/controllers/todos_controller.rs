@@ -1,5 +1,5 @@
 use actix_web::{
-    web::{self, Data, Json, ReqData, ServiceConfig},
+    web::{self, Data, Json, ServiceConfig},
     HttpRequest, Responder,
 };
 use inertia_rust::{hashmap, validators::InertiaValidateOrRedirect, Inertia, InertiaFacade};
@@ -8,19 +8,18 @@ use crate::{
     config::datastore::DataStore,
     domain::{entities::todo::Todo, services::todo::create_todo_service::CreateTodoParams},
     infra::{
-        factories::{self, services::todo::get_create_todo_service},
-        http::dtos::todo_dto::CreateTodoDto,
+        factories::services::todo::get_create_todo_service, http::dtos::todo_dto::CreateTodoDto,
     },
 };
 
-use super::controller::{AppRedirect, AppResponse, Controller};
+use super::controller::{AppRedirect, Controller};
 
 pub struct TodosController;
 
 impl Controller for TodosController {
     fn register(cfg: &mut ServiceConfig) {
-        cfg.route("/", web::get().to(Self::index));
-        cfg.route("/create", web::post().to(Self::create));
+        cfg.route("/", web::get().to(Self::index))
+            .route("/create", web::post().to(Self::create));
     }
 }
 
