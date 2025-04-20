@@ -12,7 +12,7 @@ use crate::{
     },
 };
 
-use super::controller::{AppRedirect, Controller};
+use super::controller::Controller;
 
 pub struct TodosController;
 
@@ -28,7 +28,7 @@ impl TodosController {
         req: HttpRequest,
         body: Json<CreateTodoDto>,
         datastore: Data<DataStore>,
-    ) -> AppRedirect {
+    ) -> impl Responder {
         let body = match body.validate_or_back(&req) {
             Err(redirect) => return redirect,
             Ok(body) => body,
