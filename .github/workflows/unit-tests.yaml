@@ -1,0 +1,26 @@
+
+name: unit tests
+
+on:
+    workflow_call:
+
+env:
+    CARGO_TERM_COLORS: always
+
+jobs:
+    build_and_test:
+        name: "run tests from src/ directory"
+        runs-on: ubuntu-latest
+        strategy:
+          matrix:
+            toolchain:
+              - stable
+              - beta
+        steps:
+          - uses: actions/checkout@v4
+          - run: cp .env.test .env
+          - run: rustup update ${{ matrix.toolchain }}
+          - run: rustup default ${{ matrix.toolchain }}
+          - name: Cache Test Build Artifacts
+            uses: Swatinem/rust-cache@v2
+          - run: cargo test --lib --bins --examples --verbose --all-features

@@ -1,0 +1,32 @@
+name: e2e tests
+
+on:
+    workflow_call:
+
+env:
+    CARGO_TERM_COLORS: always
+
+jobs:
+    build_and_test:
+        name: "run e-2-e and integration tests"
+        runs-on: ubuntu-latest
+        strategy:
+          matrix:
+            toolchain:
+              - stable
+              - beta
+        steps:
+          - uses: actions/checkout@v4
+          - run: cp .env.test .env
+          - run: rustup update ${{ matrix.toolchain }}
+          - run: rustup default ${{ matrix.toolchain }}
+          - name: Cache Test Build Artifacts
+            uses: Swatinem/rust-cache@v2
+          - name: Raise docker containers
+            run: docker compose up -d
+          - name: Check docker containers running
+            run: docker ps -a
+          - run: cargo test --test * --verbose --all-features
+          - name: Stop docker containers
+            run: docker compose down > /dev/null 2>&1 || true
+        

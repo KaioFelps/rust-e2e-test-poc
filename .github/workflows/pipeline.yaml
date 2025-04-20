@@ -1,0 +1,13 @@
+name: pipeline
+
+on:
+    push:
+    pull_request: 
+    release: 
+
+jobs:
+    e2e_tests:
+        uses: ./.github/workflows/e2e-and-integration-tests.yaml
+    
+    unit_tests:
+        uses: ./.github/workflows/unit-tests.yaml
