@@ -1,4 +1,4 @@
-name: "e2e services"
+name: "e2e-services"
 
 services:
   postgres:
