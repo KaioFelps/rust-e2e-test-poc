@@ -28,5 +28,6 @@ jobs:
             run: docker ps -a
           - run: cargo test --test '*' --verbose --all-features
           - name: Stop docker containers
+            if: always()
             run: docker compose down > /dev/null 2>&1 || true
         
