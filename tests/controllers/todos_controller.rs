@@ -12,7 +12,7 @@ use crate::common::{
 #[rstest]
 #[tokio::test]
 #[awt]
-async fn test(#[future] __setup: (), #[future] testing_app_data: TestingAppData<'_>) {
+async fn index(#[future] __setup: (), #[future] testing_app_data: TestingAppData<'_>) {
     let (inertia, datastore_guard) = testing_app_data;
 
     let app = actix_web::test::init_service(
@@ -47,6 +47,7 @@ async fn create(#[future] __setup: (), #[future] testing_app_data: TestingAppDat
             "title": "task",
             "content": "the task content"
         }))
+        .insert_header((actix_web::http::header::REFERER, "/foo"))
         .send_request(&app)
         .await;
 
@@ -55,6 +56,16 @@ async fn create(#[future] __setup: (), #[future] testing_app_data: TestingAppDat
         .await
         .unwrap();
 
+    assert_eq!(
+        "/",
+        response
+            .headers()
+            .iter()
+            .find(|(key, _)| key.as_str() == "location")
+            .unwrap()
+            .1,
+        "Expected it to always redirect to '/', regardless it's succeeded."
+    );
     assert_eq!(StatusCode::FOUND, response.status());
     assert_eq!(1, count);
 }

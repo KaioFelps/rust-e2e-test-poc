@@ -1,5 +1,5 @@
 use actix_web::{
-    web::{self, Data, Json, ServiceConfig},
+    web::{self, Data, Json, Redirect, ServiceConfig},
     HttpRequest, Responder,
 };
 use inertia_rust::{hashmap, validators::InertiaValidateOrRedirect, Inertia, InertiaFacade};
@@ -50,7 +50,7 @@ impl TodosController {
                     ],
                 )
             }
-            Ok(_) => Inertia::back(&req),
+            Ok(_) => Redirect::to("/"),
         }
     }
 
