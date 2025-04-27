@@ -66,6 +66,6 @@ async fn create(#[future] __setup: (), #[future] testing_app_data: TestingAppDat
             .1,
         "Expected it to always redirect to '/', regardless it's succeeded."
     );
-    assert_eq!(StatusCode::FOUND, response.status());
+    assert_eq!(StatusCode::SEE_OTHER, response.status());
     assert_eq!(1, count);
 }

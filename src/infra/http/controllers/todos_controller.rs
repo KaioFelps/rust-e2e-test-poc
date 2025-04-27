@@ -50,7 +50,7 @@ impl TodosController {
                     ],
                 )
             }
-            Ok(_) => Redirect::to("/"),
+            Ok(_) => Redirect::to("/").see_other(),
         }
     }
 
