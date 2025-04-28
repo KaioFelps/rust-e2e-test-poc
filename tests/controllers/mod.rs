@@ -1,1 +1,1 @@
-pub mod todos_controller;
+pub mod todos;

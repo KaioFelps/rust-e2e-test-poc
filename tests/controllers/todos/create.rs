@@ -10,34 +10,15 @@ use crate::common::{
 };
 
 #[rstest]
-#[tokio::test]
-#[awt]
-async fn index(#[future] __setup: (), #[future] testing_app_data: TestingAppData<'_>) {
-    let (inertia, datastore_guard) = testing_app_data;
-
-    let app = actix_web::test::init_service(
-        get_server()
-            .app_data(inertia)
-            .app_data(datastore_guard.datastore.clone()),
-    )
-    .await;
-
-    let response = TestRequest::get().uri("/").send_request(&app).await;
-
-    assert_eq!(StatusCode::OK, response.status());
-    assert!(response.headers().contains_key("x-inertia"));
-}
-
-#[rstest]
 #[awt]
 #[tokio::test]
 async fn create(#[future] __setup: (), #[future] testing_app_data: TestingAppData<'_>) {
-    let (inertia, datastore_guard) = testing_app_data;
+    let (inertia, mut datastore_guard) = testing_app_data;
 
     let app = actix_web::test::init_service(
         get_server()
             .app_data(inertia)
-            .app_data(datastore_guard.datastore.clone()),
+            .app_data(datastore_guard.clone_datastore()),
     )
     .await;
 
@@ -52,10 +33,11 @@ async fn create(#[future] __setup: (), #[future] testing_app_data: TestingAppDat
         .await;
 
     let (count,): (i64,) = sqlx::query_as(r#"SELECT COUNT(id) FROM todos"#)
-        .fetch_one(datastore_guard.datastore.get_db())
+        .fetch_one(datastore_guard.take().get_db())
         .await
         .unwrap();
 
+    assert_eq!(StatusCode::SEE_OTHER, response.status());
     assert_eq!(
         "/",
         response
@@ -66,6 +48,5 @@ async fn create(#[future] __setup: (), #[future] testing_app_data: TestingAppDat
             .1,
         "Expected it to always redirect to '/', regardless it's succeeded."
     );
-    assert_eq!(StatusCode::SEE_OTHER, response.status());
     assert_eq!(1, count);
 }
