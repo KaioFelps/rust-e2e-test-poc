@@ -10,6 +10,7 @@ pub struct Options {
     main_database_url: &'static str,
     app_url: &'static str,
     environment: RustEnv,
+    default_per_page: u8,
 }
 
 #[derive(Default, PartialEq, Eq, Debug)]
@@ -37,6 +38,7 @@ impl Options {
                 .ok()
                 .map(|schema| Box::leak(schema.into_boxed_str()) as &'static str),
             environment: var("RUST_ENV").map(Into::into).unwrap_or_default(),
+            default_per_page: 24,
         }
     }
 
@@ -62,6 +64,10 @@ impl Options {
 
     pub fn get_environment(&self) -> &RustEnv {
         &self.environment
+    }
+
+    pub fn get_default_per_page(&self) -> u8 {
+        self.default_per_page
     }
 }
 
