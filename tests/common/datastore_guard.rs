@@ -9,7 +9,7 @@ use e2e_test_poc::config::{
 ///
 /// This behaves as a sort of teardrop which cleans up the database schema.
 pub struct DataStoreGuard<'a> {
-    pub datastore: Data<DataStore>,
+    pub datastore: Option<Data<DataStore>>,
     schema: &'a str,
 }
 
@@ -33,16 +33,25 @@ impl<'a> DataStoreGuard<'a> {
         }
 
         Self {
-            datastore: Data::new(datastore),
+            datastore: Some(Data::new(datastore)),
             schema,
         }
+    }
+}
+
+impl DataStoreGuard<'_> {
+    pub fn take(&mut self) -> Data<DataStore> {
+        self.datastore.take().unwrap()
+    }
+
+    pub fn clone_datastore(&self) -> Data<DataStore> {
+        self.datastore.as_ref().unwrap().clone()
     }
 }
 
 impl Drop for DataStoreGuard<'_> {
     fn drop(&mut self) {
         let schema = self.schema.to_owned();
-        let datastore = self.datastore.clone();
         let database_url = Options::get().get_main_database_url().to_owned();
 
         let _ = std::thread::spawn(|| {
@@ -51,8 +60,6 @@ impl Drop for DataStoreGuard<'_> {
                 .build()
                 .expect("Couldn't initialize tokio runtime to drop database test schema.")
                 .block_on(async move {
-                    datastore.get_db().close().await;
-
                     let database_url = database_url.leak();
                     let schema = schema.leak();
                     let datastore = get_datastore(database_url, Some(schema)).await.unwrap();
