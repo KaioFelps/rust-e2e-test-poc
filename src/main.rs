@@ -4,6 +4,7 @@ use config::{
     vite::get_vite,
 };
 
+mod common;
 mod config;
 mod domain;
 mod infra;
