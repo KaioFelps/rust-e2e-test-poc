@@ -1,14 +1,30 @@
 use actix_web::{
-    web::{self, Data, Json, Redirect, ServiceConfig},
+    web::{self, Data, Json, Query, Redirect, ServiceConfig},
     HttpRequest, Responder,
 };
-use inertia_rust::{hashmap, validators::InertiaValidateOrRedirect, Inertia, InertiaFacade};
+use inertia_rust::{
+    hashmap, validators::InertiaValidateOrRedirect, Inertia, InertiaFacade, InertiaProp,
+};
+use validator::Validate;
 
 use crate::{
-    config::datastore::DataStore,
-    domain::{entities::todo::Todo, services::todo::create_todo_service::CreateTodoParams},
+    common::error::AppResult,
+    config::{datastore::DataStore, options::Options},
+    domain::{
+        entities::todo::Todo,
+        services::todo::{
+            create_todo_service::CreateTodoParams, fetch_paginated_todos::FetchPaginatedTodosParams,
+        },
+    },
     infra::{
-        factories::services::todo::get_create_todo_service, http::dtos::todo_dto::CreateTodoDto,
+        factories::services::todo::{get_create_todo_service, get_fetch_paginated_todos_service},
+        http::{
+            dtos::todo_dto::{CreateTodoDto, PaginatedTodosDto},
+            presenters::{
+                paginated_entity_presenter::PaginatedEntityPresenter,
+                pagination_presenter::PaginationPresenter, todo_presenter::TodoPresenter,
+            },
+        },
     },
 };
 
@@ -54,7 +70,42 @@ impl TodosController {
         }
     }
 
-    async fn index(req: HttpRequest) -> impl Responder {
-        Inertia::render(&req, "index".into()).await
+    async fn index(
+        req: HttpRequest,
+        query: Query<PaginatedTodosDto>,
+        datastore: Data<DataStore>,
+    ) -> AppResult<impl Responder> {
+        query.validate()?;
+
+        let params = FetchPaginatedTodosParams {
+            page: query.page,
+            per_page: query.per_page,
+            query: query.get_query(),
+        };
+
+        let todos = get_fetch_paginated_todos_service(&datastore)
+            .exec(params)
+            .await?;
+
+        let todos = PaginatedEntityPresenter {
+            data: todos.0.into_iter().map(TodoPresenter::from).collect(),
+            pagination: PaginationPresenter::new(
+                todos.1,
+                query.page.unwrap_or(1),
+                query
+                    .per_page
+                    .unwrap_or_else(|| Options::get().get_default_per_page()),
+            ),
+        };
+
+        Inertia::render_with_props(
+            &req,
+            "index".into(),
+            hashmap![
+                "todos" => InertiaProp::data(todos)
+            ],
+        )
+        .await
+        .map_err(Into::into)
     }
 }
