@@ -1,5 +1,7 @@
 use chrono::NaiveDateTime;
+use sqlx::prelude::FromRow;
 
+#[derive(FromRow)]
 pub struct Todo {
     id: i32,
     title: String,
