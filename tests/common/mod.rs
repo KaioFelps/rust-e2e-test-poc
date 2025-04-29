@@ -1,6 +1,5 @@
-pub mod datastore_guard;
+pub mod fixtures;
 pub mod setup;
-pub mod testing_app;
 
 pub fn get_unique_db_schema() -> String {
     use std::sync::atomic::{AtomicUsize, Ordering};

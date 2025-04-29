@@ -1,28 +1,43 @@
 use crate::common::{
+    fixtures::datastore::{datastore, DataStoreGuard},
+    fixtures::inertia::inertia,
     setup::__setup,
-    testing_app::{testing_app_data, TestingAppData},
 };
-use actix_web::{http::StatusCode, test::TestRequest};
-use e2e_test_poc::config::server::get_server;
-use inertia_rust::test::{InertiaTestRequest, IntoAssertableInertia};
+use actix_web::{http::StatusCode, test::TestRequest, web::Data};
+use e2e_test_poc::config::{datastore::DataStore, server::get_server};
+use inertia_rust::{
+    test::{InertiaTestRequest, IntoAssertableInertia},
+    Inertia,
+};
 use pretty_assertions::assert_eq;
 use rstest::rstest;
+
+async fn seed_todos(datastore: &DataStore) {
+    let has_inserted = sqlx::query(
+        r#"INSERT INTO "todos"
+        (id, title, content, completed)
+        VALUES
+        (1, 'Foo', 'Content of foo', false),
+        (2, 'Bar', 'Content of bar', true),
+        (3, 'Baz', 'Content of baz', true)"#,
+    )
+    .execute(datastore.get_db())
+    .await;
+
+    assert!(has_inserted.is_ok());
+}
 
 #[rstest]
 #[tokio::test]
 #[awt]
 async fn returns_is_a_valid_inertia_response(
     #[future] __setup: (),
-    #[future] testing_app_data: TestingAppData<'_>,
+    #[future] inertia: Data<Inertia>,
+    #[future] mut datastore: DataStoreGuard<'_>,
 ) {
-    let (inertia, mut datastore_guard) = testing_app_data;
-
-    let app = actix_web::test::init_service(
-        get_server()
-            .app_data(inertia)
-            .app_data(datastore_guard.take()),
-    )
-    .await;
+    let app =
+        actix_web::test::init_service(get_server().app_data(inertia).app_data(datastore.take()))
+            .await;
 
     let response = TestRequest::get().uri("/").send_request(&app).await;
 
@@ -35,22 +50,10 @@ async fn returns_is_a_valid_inertia_response(
 #[tokio::test]
 async fn can_fetch_latest_todos(
     #[future] __setup: (),
-    #[future] testing_app_data: TestingAppData<'_>,
+    #[future] inertia: Data<Inertia>,
+    #[future] mut datastore: DataStoreGuard<'_>,
 ) {
-    let (inertia, mut datastore) = testing_app_data;
-
-    let has_inserted = sqlx::query(
-        r#"INSERT INTO "todos"
-        (id, title, content, completed)
-        VALUES
-        (1, 'Foo', 'Content of foo', false),
-        (2, 'Bar', 'Content of bar', true),
-        (3, 'Baz', 'Content of baz', true)"#,
-    )
-    .execute(datastore.datastore.as_ref().unwrap().get_db())
-    .await;
-
-    assert!(has_inserted.is_ok());
+    seed_todos(datastore.as_ref()).await;
 
     let app =
         actix_web::test::init_service(get_server().app_data(inertia).app_data(datastore.take()))

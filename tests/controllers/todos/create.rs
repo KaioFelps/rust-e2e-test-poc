@@ -1,24 +1,30 @@
-use actix_web::{http::StatusCode, test::TestRequest};
+use actix_web::{http::StatusCode, test::TestRequest, web::Data};
 use e2e_test_poc::config::server::get_server;
+use inertia_rust::Inertia;
 use pretty_assertions::assert_eq;
 use rstest::rstest;
 use serde_json::json;
 
 use crate::common::{
+    fixtures::{
+        datastore::{datastore, DataStoreGuard},
+        inertia::inertia,
+    },
     setup::__setup,
-    testing_app::{testing_app_data, TestingAppData},
 };
 
 #[rstest]
 #[awt]
 #[tokio::test]
-async fn create(#[future] __setup: (), #[future] testing_app_data: TestingAppData<'_>) {
-    let (inertia, mut datastore_guard) = testing_app_data;
-
+async fn create(
+    #[future] __setup: (),
+    #[future] inertia: Data<Inertia>,
+    #[future] mut datastore: DataStoreGuard<'_>,
+) {
     let app = actix_web::test::init_service(
         get_server()
             .app_data(inertia)
-            .app_data(datastore_guard.clone_datastore()),
+            .app_data(datastore.clone_datastore()),
     )
     .await;
 
@@ -33,7 +39,7 @@ async fn create(#[future] __setup: (), #[future] testing_app_data: TestingAppDat
         .await;
 
     let (count,): (i64,) = sqlx::query_as(r#"SELECT COUNT(id) FROM todos"#)
-        .fetch_one(datastore_guard.take().get_db())
+        .fetch_one(datastore.take().get_db())
         .await
         .unwrap();
 
