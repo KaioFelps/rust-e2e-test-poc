@@ -67,17 +67,12 @@ async fn can_fetch_latest_todos(
 
     let page: inertia_rust::test::AssertableInertia = page.into_assertable_inertia();
 
+    println!("{page:#?}");
+
+    assert_eq!(3, page.props["todos"]["data"].as_array().unwrap().len());
+    assert_eq!(3, page.props["todos"]["pagination"]["totalItems"]);
     assert_eq!(
-        3,
-        page.props
-            .get("todos")
-            .unwrap()
-            .as_object()
-            .unwrap()
-            .get("data")
-            .unwrap()
-            .as_array()
-            .unwrap()
-            .len()
+        "Foo",
+        page.props["todos"]["data"][0]["title"].as_str().unwrap()
     );
 }
