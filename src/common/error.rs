@@ -1,4 +1,11 @@
-use actix_web::{http::StatusCode, ResponseError};
+use actix_web::{
+    body::BoxBody,
+    http::{
+        header::{self, TryIntoHeaderValue},
+        StatusCode,
+    },
+    HttpResponse, ResponseError,
+};
 use inertia_rust::InertiaError;
 
 pub type AppResult<T, E = AppError> = Result<T, E>;
@@ -29,7 +36,33 @@ impl ResponseError for AppError {
                 log::error!("{err}");
                 StatusCode::INTERNAL_SERVER_ERROR
             }
-            AppError::ValidationError(_) => StatusCode::BAD_GATEWAY,
+            AppError::ValidationError(_) => StatusCode::BAD_REQUEST,
         }
     }
+
+    fn error_response(&self) -> HttpResponse<BoxBody> {
+        let mut res = HttpResponse::new(self.status_code());
+
+        match self {
+            Self::ValidationError(validation_errors) => {
+                insert_content_type_header(&mut res, header::ContentType::json());
+                res = res.set_body(BoxBody::new(
+                    serde_json::to_string(&validation_errors.field_errors()).unwrap(),
+                ));
+            }
+            Self::InternalError(_) => {
+                insert_content_type_header(&mut res, header::ContentType::plaintext());
+                res = res.set_body(BoxBody::new(self.to_string()));
+            }
+        }
+
+        res
+    }
+}
+
+fn insert_content_type_header(res: &mut HttpResponse, content_type: header::ContentType) {
+    res.headers_mut().insert(
+        header::CONTENT_TYPE,
+        content_type.0.try_into_value().unwrap(),
+    );
 }
