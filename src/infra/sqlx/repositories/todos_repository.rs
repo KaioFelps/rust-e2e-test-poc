@@ -63,18 +63,18 @@ impl TodosRepository for SqlxTodosRepository<'_> {
                 }
                 TodosQuery::Content(content) => {
                     select_query
-                        .push(" WHERE content ilike %")
+                        .push(" WHERE content ilike CONCAT('%', ")
                         .push_bind(content.clone())
-                        .push("% OR title ilike %")
+                        .push(", '%') OR title ilike CONCAT('%', ")
                         .push_bind(content.clone())
-                        .push("%");
+                        .push(", '%')");
 
                     count_query
-                        .push(" WHERE content ilike %")
+                        .push(" WHERE content ilike CONCAT('%', ")
                         .push_bind(content.clone())
-                        .push("% OR title ilike %")
+                        .push(", '%') OR title ilike CONCAT('%', ")
                         .push_bind(content.clone())
-                        .push("%");
+                        .push(", '%')");
                 }
             };
         }
