@@ -4,3 +4,4 @@
 **/dist/
 **/bundle/
 node_modules/
+**/hot
