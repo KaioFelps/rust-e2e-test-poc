@@ -1,15 +1,16 @@
-use serde::Serialize;
+use chrono::NaiveDateTime;
+use serde::{Deserialize, Serialize};
 
 use crate::domain::entities::todo::Todo;
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 pub struct TodoPresenter {
-    id: i32,
-    title: String,
-    content: String,
-    completed: bool,
+    pub id: i32,
+    pub title: String,
+    pub content: String,
+    pub completed: bool,
     #[serde(rename = "createdAt")]
-    created_at: String,
+    pub created_at: NaiveDateTime,
 }
 
 impl From<Todo> for TodoPresenter {
@@ -17,7 +18,7 @@ impl From<Todo> for TodoPresenter {
         Self {
             completed: value.completed(),
             content: value.content().to_owned(),
-            created_at: value.created_at().to_string(),
+            created_at: value.created_at(),
             id: value.id(),
             title: value.title().to_owned(),
         }
