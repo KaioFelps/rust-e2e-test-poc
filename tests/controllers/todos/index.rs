@@ -43,7 +43,7 @@ async fn seed_todos(datastore: &DataStore) {
 #[rstest]
 #[tokio::test]
 #[awt]
-async fn returns_is_a_valid_inertia_response(
+async fn it_should_return_a_valid_inertia_response_on_success(
     #[future] __setup: (),
     #[future] inertia: Data<Inertia>,
     #[future] mut datastore: DataStoreGuard<'_>,
@@ -61,7 +61,7 @@ async fn returns_is_a_valid_inertia_response(
 #[rstest]
 #[awt]
 #[tokio::test]
-async fn can_fetch_latest_todos(
+async fn it_should_fetch_latest_todos(
     #[future] __setup: (),
     #[future] inertia: Data<Inertia>,
     #[future] mut datastore: DataStoreGuard<'_>,
@@ -91,7 +91,7 @@ async fn can_fetch_latest_todos(
 #[rstest]
 #[awt]
 #[tokio::test]
-async fn invariant_of_query_by_argument_from_query_causes_validation_error(
+async fn invariant_of_query_by_argument_from_query_should_cause_validation_error(
     #[future] __setup: (),
     #[future] mut datastore: DataStoreGuard<'_>,
     #[future] inertia: Data<Inertia>,
@@ -111,7 +111,7 @@ async fn invariant_of_query_by_argument_from_query_causes_validation_error(
 #[rstest]
 #[awt]
 #[tokio::test]
-async fn can_fetch_todos_filtered_by_content(
+async fn it_should_fetch_todos_filtered_by_content(
     #[future] __setup: (),
     #[future] inertia: Data<Inertia>,
     #[future] mut datastore: DataStoreGuard<'_>,
@@ -145,7 +145,7 @@ async fn can_fetch_todos_filtered_by_content(
 #[rstest]
 #[awt]
 #[tokio::test]
-async fn can_fetch_todos_filtered_by_completed_status(
+async fn it_shuld_fetch_todos_filtered_by_completed_status(
     #[future] __setup: (),
     #[future] inertia: Data<Inertia>,
     #[future] mut datastore: DataStoreGuard<'_>,
@@ -186,4 +186,63 @@ async fn can_fetch_todos_filtered_by_completed_status(
     assert_eq!("Bar", second_todo.title);
     assert_eq!("Content of bar", second_todo.content);
     assert_eq!(true, second_todo.completed);
+}
+
+#[rstest]
+#[awt]
+#[tokio::test]
+async fn it_should_handle_pagination(
+    #[future] __setup: (),
+    #[future] inertia: Data<Inertia>,
+    #[future] mut datastore: DataStoreGuard<'_>,
+) {
+    seed_todos(datastore.as_ref()).await;
+
+    let app =
+        actix_web::test::init_service(get_server().app_data(inertia).app_data(datastore.take()))
+            .await;
+
+    let response = TestRequest::get()
+        .inertia()
+        .uri("/?per_page=2")
+        .send_request(&app)
+        .await;
+
+    assert!(response.status().is_success());
+
+    let page = response.into_assertable_inertia();
+
+    assert_eq!(1, page.props["todos"]["pagination"]["currentPage"]);
+    assert_eq!(2, page.props["todos"]["pagination"]["lastPage"]);
+    assert_eq!(3, page.props["todos"]["pagination"]["totalItems"]);
+    assert_eq!(2, page.props["todos"]["data"].as_array().unwrap().len());
+
+    assert_eq!(
+        "Baz",
+        page.props["todos"]["data"][0]["title"].as_str().unwrap()
+    );
+    assert_eq!(
+        "Bar",
+        page.props["todos"]["data"][1]["title"].as_str().unwrap()
+    );
+
+    let response = TestRequest::get()
+        .inertia()
+        .uri("/?per_page=2&page=2")
+        .send_request(&app)
+        .await;
+
+    assert!(response.status().is_success());
+
+    let page = response.into_assertable_inertia();
+
+    assert_eq!(2, page.props["todos"]["pagination"]["currentPage"]);
+    assert_eq!(2, page.props["todos"]["pagination"]["lastPage"]);
+    assert_eq!(3, page.props["todos"]["pagination"]["totalItems"]);
+    assert_eq!(1, page.props["todos"]["data"].as_array().unwrap().len());
+
+    assert_eq!(
+        "Foo",
+        page.props["todos"]["data"][0]["title"].as_str().unwrap()
+    );
 }
