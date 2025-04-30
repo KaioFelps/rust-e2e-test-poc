@@ -2,6 +2,30 @@
 This repository contains the source code of a todo list. The goal is to write asynchronous end-to-end tests for each
 of the endpoints, being it a simple view response or an action.
 
+## Testing
+```bash
+docker compose up -d
+npm ci && npm run build # needed because tests rely on generated manifest.json
+cargo test
+```
+
+## Running
+First of all, start the docker containers needed by the application:
+```bash
+docker compose up -d
+```
+
+In one terminal, start the front-end dev server:
+```bash
+npm install
+npm run dev
+```
+
+In a second one, start the back-end dev server:
+```bash
+cargo run
+```
+
 ## Tech Stack
 These tests rely only on cargo test and rstest. For reaching tearup and teardrop, it uses rstest fixtures feature and rust
 drop descontructors. It aint the most beautiful test syntax, but works just fine.
