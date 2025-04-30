@@ -65,9 +65,7 @@ async fn can_fetch_latest_todos(
         .send_request(&app)
         .await;
 
-    let page: inertia_rust::test::AssertableInertia = page.into_assertable_inertia();
-
-    println!("{page:#?}");
+    let page = page.into_assertable_inertia();
 
     assert_eq!(3, page.props["todos"]["data"].as_array().unwrap().len());
     assert_eq!(3, page.props["todos"]["pagination"]["totalItems"]);
@@ -75,4 +73,58 @@ async fn can_fetch_latest_todos(
         "Foo",
         page.props["todos"]["data"][0]["title"].as_str().unwrap()
     );
+}
+
+#[rstest]
+#[awt]
+#[tokio::test]
+async fn invariant_of_query_by_argument_from_query_causes_validation_error(
+    #[future] __setup: (),
+    #[future] mut datastore: DataStoreGuard<'_>,
+    #[future] inertia: Data<Inertia>,
+) {
+    let app =
+        actix_web::test::init_service(get_server().app_data(inertia).app_data(datastore.take()))
+            .await;
+
+    let response = TestRequest::get()
+        .uri("/?query_by=not_content_nor_completed&query=baz")
+        .send_request(&app)
+        .await;
+
+    assert_eq!(StatusCode::BAD_REQUEST, response.status());
+}
+
+#[rstest]
+#[awt]
+#[tokio::test]
+async fn can_fetch_todos_filtered_by_content(
+    #[future] __setup: (),
+    #[future] inertia: Data<Inertia>,
+    #[future] mut datastore: DataStoreGuard<'_>,
+) {
+    seed_todos(datastore.as_ref()).await;
+
+    let app =
+        actix_web::test::init_service(get_server().app_data(inertia).app_data(datastore.take()))
+            .await;
+
+    let response = TestRequest::get()
+        .inertia()
+        .uri("/?query_by=content&query=baz")
+        .send_request(&app)
+        .await;
+
+    assert!(response.status().is_success());
+
+    let page = response.into_assertable_inertia();
+
+    assert_eq!(1, page.props["todos"]["data"].as_array().unwrap().len());
+    assert_eq!(1, page.props["todos"]["pagination"]["totalItems"]);
+
+    let todo = &page.props["todos"]["data"][0];
+    assert_eq!(3, todo["id"]);
+    assert_eq!("Baz", todo["title"].as_str().unwrap());
+    assert_eq!("Content of baz", todo["content"].as_str().unwrap());
+    assert_eq!(true, todo["completed"]);
 }
