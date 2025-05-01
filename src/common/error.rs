@@ -32,10 +32,7 @@ impl From<InertiaError> for AppError {
 impl ResponseError for AppError {
     fn status_code(&self) -> actix_web::http::StatusCode {
         match &self {
-            AppError::InternalError(err) => {
-                log::error!("{err}");
-                StatusCode::INTERNAL_SERVER_ERROR
-            }
+            AppError::InternalError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             AppError::ValidationError(_) => StatusCode::BAD_REQUEST,
         }
     }
@@ -50,7 +47,8 @@ impl ResponseError for AppError {
                     serde_json::to_string(&validation_errors.field_errors()).unwrap(),
                 ));
             }
-            Self::InternalError(_) => {
+            Self::InternalError(err) => {
+                log::error!("{err}");
                 insert_content_type_header(&mut res, header::ContentType::plaintext());
                 res = res.set_body(BoxBody::new(self.to_string()));
             }
