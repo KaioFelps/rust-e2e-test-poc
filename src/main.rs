@@ -12,6 +12,8 @@ mod infra;
 #[actix_web::main]
 async fn main() -> anyhow::Result<()> {
     dotenvy::dotenv().expect("Could not load environment variables.");
+    env_logger::builder().parse_env("RUST_LOG").build();
+
     let options = Options::get();
 
     let vite = get_vite().await?;
