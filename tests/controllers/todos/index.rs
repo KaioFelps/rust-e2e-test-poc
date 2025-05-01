@@ -91,26 +91,6 @@ async fn it_should_fetch_latest_todos(
 #[rstest]
 #[awt]
 #[tokio::test]
-async fn invariant_of_query_by_argument_from_query_should_cause_validation_error(
-    #[future] __setup: (),
-    #[future] mut datastore: DataStoreGuard<'_>,
-    #[future] inertia: Data<Inertia>,
-) {
-    let app =
-        actix_web::test::init_service(get_server().app_data(inertia).app_data(datastore.take()))
-            .await;
-
-    let response = TestRequest::get()
-        .uri("/?query_by=not_content_nor_completed&query=baz")
-        .send_request(&app)
-        .await;
-
-    assert_eq!(StatusCode::BAD_REQUEST, response.status());
-}
-
-#[rstest]
-#[awt]
-#[tokio::test]
 async fn it_should_fetch_todos_filtered_by_content(
     #[future] __setup: (),
     #[future] inertia: Data<Inertia>,
@@ -124,7 +104,7 @@ async fn it_should_fetch_todos_filtered_by_content(
 
     let response = TestRequest::get()
         .inertia()
-        .uri("/?query_by=content&query=baz")
+        .uri("/?query=baz")
         .send_request(&app)
         .await;
 
@@ -158,7 +138,7 @@ async fn it_shuld_fetch_todos_filtered_by_completed_status(
 
     let response = TestRequest::get()
         .inertia()
-        .uri("/?query_by=completed&query=true")
+        .uri("/?completed=true")
         .send_request(&app)
         .await;
 
@@ -245,4 +225,32 @@ async fn it_should_handle_pagination(
         "Foo",
         page.props["todos"]["data"][0]["title"].as_str().unwrap()
     );
+}
+
+#[rstest]
+#[awt]
+#[tokio::test]
+async fn it_should_handle_both_completed_and_query_search_params(
+    #[future] __setup: (),
+    #[future] inertia: Data<Inertia>,
+    #[future] mut datastore: DataStoreGuard<'_>,
+) {
+    seed_todos(datastore.as_ref()).await;
+
+    let app =
+        actix_web::test::init_service(get_server().app_data(inertia).app_data(datastore.take()))
+            .await;
+
+    let response = TestRequest::get()
+        .uri("/?completed=false&query=bar")
+        .inertia()
+        .send_request(&app)
+        .await;
+
+    assert!(response.status().is_success());
+
+    let page = response.into_assertable_inertia();
+
+    // task with title = "bar" has completed = true
+    assert_eq!(0, page.props["todos"]["pagination"]["totalItems"]);
 }

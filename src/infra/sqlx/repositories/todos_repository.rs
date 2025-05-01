@@ -7,7 +7,6 @@ use crate::{
     domain::{
         entities::todo::{DraftTodo, Todo},
         repositories::todos_repository::TodosRepository,
-        services::todo::fetch_paginated_todos::TodosQuery,
     },
 };
 
@@ -43,7 +42,8 @@ impl TodosRepository for SqlxTodosRepository<'_> {
         &self,
         page: u32,
         per_page: u8,
-        query: Option<TodosQuery>,
+        query: Option<String>,
+        completed: Option<bool>,
     ) -> anyhow::Result<PaginatedFetch<Todo>> {
         let mut select_query = QueryBuilder::<Postgres>::new(
             r#"SELECT id, title, content, created_at, completed
@@ -52,31 +52,41 @@ impl TodosRepository for SqlxTodosRepository<'_> {
 
         let mut count_query = QueryBuilder::<Postgres>::new(r#"SELECT COUNT(id) from "todos""#);
 
-        if let Some(query) = query {
-            match query {
-                TodosQuery::Completed(completed) => {
-                    select_query
-                        .push(" WHERE completed = ")
-                        .push_bind(completed);
+        let mut has_inserted_early_where_clause = false;
+        if let Some(content) = query {
+            select_query
+                .push(" WHERE (content ilike CONCAT('%', ")
+                .push_bind(content.clone())
+                .push(", '%') OR title ilike CONCAT('%', ")
+                .push_bind(content.clone())
+                .push(", '%'))");
 
-                    count_query.push(" WHERE completed = ").push_bind(completed);
-                }
-                TodosQuery::Content(content) => {
-                    select_query
-                        .push(" WHERE content ilike CONCAT('%', ")
-                        .push_bind(content.clone())
-                        .push(", '%') OR title ilike CONCAT('%', ")
-                        .push_bind(content.clone())
-                        .push(", '%')");
+            count_query
+                .push(" WHERE (content ilike CONCAT('%', ")
+                .push_bind(content.clone())
+                .push(", '%') OR title ilike CONCAT('%', ")
+                .push_bind(content.clone())
+                .push(", '%'))");
 
-                    count_query
-                        .push(" WHERE content ilike CONCAT('%', ")
-                        .push_bind(content.clone())
-                        .push(", '%') OR title ilike CONCAT('%', ")
-                        .push_bind(content.clone())
-                        .push(", '%')");
-                }
+            has_inserted_early_where_clause = true;
+        }
+
+        if let Some(completed) = completed {
+            let where_statement = if has_inserted_early_where_clause {
+                " AND "
+            } else {
+                " WHERE "
             };
+
+            select_query
+                .push(where_statement)
+                .push("completed = ")
+                .push_bind(completed);
+
+            count_query
+                .push(where_statement)
+                .push("completed = ")
+                .push_bind(completed);
         }
 
         select_query

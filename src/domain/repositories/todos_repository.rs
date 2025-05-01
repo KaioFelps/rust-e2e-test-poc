@@ -1,9 +1,6 @@
 use crate::{
     common::paginated_fetch::PaginatedFetch,
-    domain::{
-        entities::todo::{DraftTodo, Todo},
-        services::todo::fetch_paginated_todos::TodosQuery,
-    },
+    domain::entities::todo::{DraftTodo, Todo},
 };
 use async_trait::async_trait;
 
@@ -15,6 +12,7 @@ pub trait TodosRepository {
         &self,
         page: u32,
         per_page: u8,
-        query: Option<TodosQuery>,
+        query: Option<String>,
+        completed: Option<bool>,
     ) -> anyhow::Result<PaginatedFetch<Todo>>;
 }

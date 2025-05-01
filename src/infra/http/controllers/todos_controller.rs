@@ -72,15 +72,16 @@ impl TodosController {
 
     async fn index(
         req: HttpRequest,
-        query: Query<PaginatedTodosDto>,
+        Query(search_params): Query<PaginatedTodosDto>,
         datastore: Data<DataStore>,
     ) -> AppResult<impl Responder> {
-        query.validate()?;
+        search_params.validate()?;
 
         let params = FetchPaginatedTodosParams {
-            page: query.page,
-            per_page: query.per_page,
-            query: query.get_query(),
+            page: search_params.page,
+            per_page: search_params.per_page,
+            query: search_params.query,
+            completed: search_params.completed,
         };
 
         let todos = get_fetch_paginated_todos_service(&datastore)
@@ -91,8 +92,8 @@ impl TodosController {
             data: todos.0.into_iter().map(TodoPresenter::from).collect(),
             pagination: PaginationPresenter::new(
                 todos.1,
-                query.page.unwrap_or(1),
-                query
+                search_params.page.unwrap_or(1),
+                search_params
                     .per_page
                     .unwrap_or_else(|| Options::get().get_default_per_page()),
             ),

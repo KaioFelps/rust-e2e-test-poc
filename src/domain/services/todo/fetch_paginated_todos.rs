@@ -4,15 +4,11 @@ use crate::{
     domain::{entities::todo::Todo, repositories::todos_repository::TodosRepository},
 };
 
-pub enum TodosQuery {
-    Completed(bool),
-    Content(String),
-}
-
 pub struct FetchPaginatedTodosParams {
     pub page: Option<u32>,
     pub per_page: Option<u8>,
-    pub query: Option<TodosQuery>,
+    pub query: Option<String>,
+    pub completed: Option<bool>,
 }
 
 pub struct FetchPaginatedTodos<TR: TodosRepository> {
@@ -35,6 +31,7 @@ impl<TR: TodosRepository> FetchPaginatedTodos<TR> {
                     .per_page
                     .unwrap_or_else(|| Options::get().get_default_per_page()),
                 params.query,
+                params.completed,
             )
             .await
     }
