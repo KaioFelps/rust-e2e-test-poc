@@ -1,3 +1,4 @@
+import { Alert } from "@/components/alert";
 import { Button } from "@/components/button";
 import { CheckboxTooltip } from "@/components/checkbox-tooltip";
 import { H1 } from "@/components/h1";
@@ -112,9 +113,9 @@ export default function Index() {
               {todos.data.map(TodoListingCard)}
             </div>
           ) : (
-            <span className="block mb-6 px-12 py-6 text-lg font-medium bg-yellow-300">
+            <Alert theme="warn">
               There are no to-do tasks! Try creating one 💅🏼✨
-            </span>
+            </Alert>
           )}
 
           <div className="flex items-center justify-between">
