@@ -18,8 +18,8 @@ pub struct PaginationPresenter {
 impl PaginationPresenter {
     pub fn new(total_items: u64, current_page: u32, per_page: u8) -> Self {
         Self {
-            current_page,
-            last_page: (total_items as f64 / per_page as f64).ceil() as u32,
+            current_page: current_page.max(1),
+            last_page: ((total_items as f64 / per_page as f64).ceil() as u32).max(1),
             per_page,
             total_items,
         }
