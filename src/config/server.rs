@@ -1,11 +1,3 @@
-use actix_session::SessionMiddleware;
-use actix_web::{
-    cookie::{Key, SameSite},
-    dev::{ServiceFactory, ServiceRequest, ServiceResponse},
-    App,
-};
-use inertia_rust::actix::InertiaMiddleware;
-
 use crate::infra::{
     http::controllers::{controller::Controller, todos_controller::TodosController},
     sessions::{
@@ -16,6 +8,14 @@ use crate::infra::{
         },
     },
 };
+use actix_session::{SessionExt, SessionMiddleware};
+use actix_web::{
+    cookie::{Key, SameSite},
+    dev::{ServiceFactory, ServiceRequest, ServiceResponse},
+    App,
+};
+use inertia_rust::{actix::InertiaMiddleware, hashmap, InertiaProp};
+use std::sync::Arc;
 
 use super::options::{Options, RustEnv};
 
@@ -33,7 +33,19 @@ pub fn get_server() -> App<
     let storage = FileSessionStore::default();
 
     App::new()
-        .wrap(InertiaMiddleware::new())
+        .wrap(InertiaMiddleware::new().with_shared_props(Arc::new(|req| {
+            let flash = req.get_session().remove(options.sessions_flash_key);
+
+            let flash = flash
+                .map(|map| serde_json::from_str::<serde_json::Map<_, _>>(&map).unwrap_or_default())
+                .unwrap_or_default();
+
+            Box::pin(async move {
+                hashmap![
+                    "flash" => InertiaProp::always(flash)
+                ]
+            })
+        })))
         .wrap(ReflashTemporarySessionMiddleware)
         .wrap(GarbageCollectorMiddleware)
         .wrap(

@@ -9,6 +9,7 @@ use inertia_rust::{
 };
 use log::error;
 use serde_json::Map;
+use std::collections::HashMap;
 use std::future::{ready, Ready};
 
 use crate::config::options::Options;
@@ -88,6 +89,17 @@ where
             // If it's not a Inertia redirect or response, it might be assets response
             // then, reflash everything so that assets don't affect real user's requests
             let (prev_url, curr_url, optional_errors) = if !is_inertia_response(&res) {
+                if let Some(flash_messages) = session.remove(options.sessions_flash_key) {
+                    if let Ok(flash_messages) =
+                        serde_json::from_str::<HashMap<String, String>>(&flash_messages)
+                    {
+                        if let Err(err) = session.insert(options.sessions_flash_key, flash_messages)
+                        {
+                            error!("Failed to reflash flash messages: {}", err);
+                        };
+                    }
+                }
+
                 (before_prev_url, prev_url, errors)
             } else {
                 let inertia_session = req.extensions_mut().remove::<InertiaSessionToReflash>();
