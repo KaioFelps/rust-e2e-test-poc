@@ -1,4 +1,5 @@
 import { CheckboxTooltip } from "@/components/checkbox-tooltip";
+import { H1 } from "@/components/h1";
 import { Main } from "@/components/main";
 import type { Todo } from "@/types/entities/todo";
 import type { PaginatedEntitySet } from "@/types/paginated-entity-set";
@@ -66,7 +67,7 @@ export default function Index() {
 
       <Main>
         <header className="mb-6 flex items-center justify-between">
-          <h1 className="font-black text-8xl text-purple-500">Todo List</h1>
+          <H1>Todo List</H1>
 
           <search className="flex items-center gap-3">
             <label className="bg-white border-2 p-4 transition-all ring-purple-500 ring-0 focus-within:ring-4">
