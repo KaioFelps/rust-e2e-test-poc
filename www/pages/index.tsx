@@ -3,6 +3,7 @@ import { Todo } from "@/types/entities/todo";
 import { PaginatedEntitySet } from "@/types/paginated-entity-set";
 import { CompletedState, FilterByCompletedStatusCheckbox } from "@/ui/filter-by-completed-status-checkbox";
 import { TodoListingCard } from "@/ui/todo-listing-card";
+import { TodoListingPagination } from "@/ui/todo-listing-pagination";
 import { Head, Link, router, usePage } from "@inertiajs/react";
 import clsx from "clsx";
 import { useCallback, useState } from "react";
@@ -104,6 +105,8 @@ export default function Index() {
               There are no to-do tasks! Try creating one 💅🏼✨
             </span>
           )}
+          
+          <div className="flex items-center justify-between">
             <Link
               href="/new"
               className={clsx(
@@ -116,6 +119,9 @@ export default function Index() {
             >
               Create a to-do task
             </Link>
+
+            <TodoListingPagination pagination={todos.pagination} uri={page.url} />
+          </div>
         </section>
       </main>
     </>
