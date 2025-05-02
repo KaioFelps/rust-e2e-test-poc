@@ -3,6 +3,7 @@ import { Button } from "@/components/button";
 import { CheckboxTooltip } from "@/components/checkbox-tooltip";
 import { H1 } from "@/components/h1";
 import { Main } from "@/components/main";
+import { useTypedPage } from "@/libs/hooks/use-typed-page";
 import type { Todo } from "@/types/entities/todo";
 import type { PaginatedEntitySet } from "@/types/paginated-entity-set";
 import {
@@ -11,12 +12,16 @@ import {
 } from "@/ui/filter-by-completed-status-checkbox";
 import { TodoListingCard } from "@/ui/todo-listing-card";
 import { TodoListingPagination } from "@/ui/todo-listing-pagination";
-import { Head, Link, router, usePage } from "@inertiajs/react";
+import { Head, Link, router } from "@inertiajs/react";
 import clsx from "clsx";
 import { useCallback, useState } from "react";
 
 type PageProps = {
   todos: PaginatedEntitySet<Todo>;
+};
+
+type PageFlash = {
+  success?: string;
 };
 
 function getDefaultCompletedState(url: string, key: string): CompletedState {
@@ -35,7 +40,7 @@ function getDefaultCompletedState(url: string, key: string): CompletedState {
 }
 
 export default function Index() {
-  const page = usePage<PageProps>();
+  const page = useTypedPage<PageProps, PageFlash>();
   const todos = page.props.todos;
 
   const [query, setQuery] = useState<string | boolean | null>(null);
@@ -106,6 +111,10 @@ export default function Index() {
             </Button>
           </search>
         </header>
+
+        {page.props.flash.success && (
+          <Alert theme="success">{page.props.flash.success}</Alert>
+        )}
 
         <section>
           {todos.pagination.totalItems > 0 ? (

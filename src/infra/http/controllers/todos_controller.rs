@@ -25,6 +25,7 @@ use crate::{
                 pagination_presenter::PaginationPresenter, todo_presenter::TodoPresenter,
             },
         },
+        sessions::helpers::flash_silently,
     },
 };
 
@@ -51,6 +52,7 @@ impl TodosController {
         };
 
         let draft_todo = Todo::draft(body.title.unwrap(), body.content.unwrap());
+        let todo_title = draft_todo.title.clone();
 
         match get_create_todo_service(&datastore)
             .exec(CreateTodoParams { draft_todo })
@@ -66,7 +68,14 @@ impl TodosController {
                     ],
                 )
             }
-            Ok(_) => Redirect::to("/").see_other(),
+            Ok(_) => {
+                flash_silently(
+                    &req,
+                    "success",
+                    format!("Added a new task \"{todo_title}!\""),
+                );
+                Redirect::to("/").see_other()
+            }
         }
     }
 
