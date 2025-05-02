@@ -27,7 +27,7 @@ impl<'a> DataStoreGuard<'a> {
     pub async fn new(schema: &'static str) -> Self {
         let options = Options::get();
 
-        let datastore = get_datastore(options.get_main_database_url(), Some(schema))
+        let datastore = get_datastore(options.main_database_url, Some(schema))
             .await
             .expect("Failed to initialize datastore in test fixture.");
 
@@ -62,7 +62,7 @@ impl DataStoreGuard<'_> {
 impl Drop for DataStoreGuard<'_> {
     fn drop(&mut self) {
         let schema = self.schema.to_owned();
-        let database_url = Options::get().get_main_database_url().to_owned();
+        let database_url = Options::get().main_database_url.to_owned();
 
         let previous_datasotre = self.datastore.clone();
 

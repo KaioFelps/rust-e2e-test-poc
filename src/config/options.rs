@@ -6,11 +6,11 @@ use std::sync::OnceLock;
 static APP_OPTIONS: OnceLock<Options> = OnceLock::new();
 
 pub struct Options {
-    main_database_schema: Option<&'static str>,
-    main_database_url: &'static str,
-    app_url: &'static str,
-    environment: RustEnv,
-    default_per_page: u8,
+    pub main_database_schema: Option<&'static str>,
+    pub main_database_url: &'static str,
+    pub app_url: &'static str,
+    pub environment: RustEnv,
+    pub default_per_page: u8,
 }
 
 #[derive(Default, PartialEq, Eq, Debug)]
@@ -48,26 +48,6 @@ impl Options {
 
     pub fn get() -> &'static Options {
         APP_OPTIONS.get_or_init(Self::get_app_options)
-    }
-
-    pub fn get_main_database_url(&self) -> &'static str {
-        self.main_database_url
-    }
-
-    pub fn get_main_database_schema(&self) -> Option<&'static str> {
-        self.main_database_schema
-    }
-
-    pub fn get_app_url(&self) -> &'static str {
-        self.app_url
-    }
-
-    pub fn get_environment(&self) -> &RustEnv {
-        &self.environment
-    }
-
-    pub fn get_default_per_page(&self) -> u8 {
-        self.default_per_page
     }
 }
 

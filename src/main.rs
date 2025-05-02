@@ -18,13 +18,8 @@ async fn main() -> anyhow::Result<()> {
 
     let vite = get_vite().await?;
     let inertia = Data::new(get_inertia(vite).await?);
-    let datastore = Data::new(
-        get_datastore(
-            options.get_main_database_url(),
-            options.get_main_database_schema(),
-        )
-        .await?,
-    );
+    let datastore =
+        Data::new(get_datastore(options.main_database_url, options.main_database_schema).await?);
 
     if let Err(err) = sqlx::migrate!().run(datastore.get_db()).await {
         log::error!("{err}");

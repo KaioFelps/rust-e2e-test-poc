@@ -95,7 +95,7 @@ impl TodosController {
                 search_params.page.unwrap_or(1),
                 search_params
                     .per_page
-                    .unwrap_or_else(|| Options::get().get_default_per_page()),
+                    .unwrap_or_else(|| Options::get().default_per_page),
             ),
         };
 
