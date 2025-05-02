@@ -31,7 +31,7 @@ async fn create(
     let response = TestRequest::post()
         .uri("/create")
         .set_json(json!({
-            "title": "task",
+            "title": "task 1",
             "content": "the task content"
         }))
         .insert_header((actix_web::http::header::REFERER, "/foo"))
