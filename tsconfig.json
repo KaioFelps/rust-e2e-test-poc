@@ -1,11 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2022",         
-    "lib": [
-      "dom",
-      "DOM.Iterable",
-      "esnext"
-    ],
+    "target": "ES2022",
+    "lib": ["dom", "DOM.Iterable", "esnext"],
     "types": ["node", "vite/client"],
     "allowJs": true,
     "skipLibCheck": true,
@@ -26,14 +22,6 @@
     "isolatedModules": true,
     "allowSyntheticDefaultImports": true
   },
-  "include": [
-    "./www/**/*.ts",
-    "./www/**/*.tsx"
-  ],
-  "exclude": [
-    "dist",
-    "public/bundle",
-    "vite.config.js",
-    "node_modules"
-  ]
+  "include": ["./www/**/*.ts", "./www/**/*.tsx"],
+  "exclude": ["dist", "public/bundle", "vite.config.js", "node_modules"]
 }

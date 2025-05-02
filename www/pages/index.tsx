@@ -1,7 +1,10 @@
 import { CheckboxTooltip } from "@/components/checkbox-tooltip";
-import { Todo } from "@/types/entities/todo";
-import { PaginatedEntitySet } from "@/types/paginated-entity-set";
-import { CompletedState, FilterByCompletedStatusCheckbox } from "@/ui/filter-by-completed-status-checkbox";
+import type { Todo } from "@/types/entities/todo";
+import type { PaginatedEntitySet } from "@/types/paginated-entity-set";
+import {
+  type CompletedState,
+  FilterByCompletedStatusCheckbox,
+} from "@/ui/filter-by-completed-status-checkbox";
 import { TodoListingCard } from "@/ui/todo-listing-card";
 import { TodoListingPagination } from "@/ui/todo-listing-pagination";
 import { Head, Link, router, usePage } from "@inertiajs/react";
@@ -9,17 +12,22 @@ import clsx from "clsx";
 import { useCallback, useState } from "react";
 
 type PageProps = {
-  todos: PaginatedEntitySet<Todo>
-}
+  todos: PaginatedEntitySet<Todo>;
+};
 
 function getDefaultCompletedState(url: string, key: string): CompletedState {
-  const urlCompletedState = new URL(url, window.location.href).searchParams.get(key);
+  const urlCompletedState = new URL(url, window.location.href).searchParams.get(
+    key,
+  );
 
   switch (urlCompletedState) {
-    case "true": return true;
-    case "false": return false;
-    default: return "indeterminate";
-  };
+    case "true":
+      return true;
+    case "false":
+      return false;
+    default:
+      return "indeterminate";
+  }
 }
 
 export default function Index() {
@@ -27,32 +35,37 @@ export default function Index() {
   const todos = page.props.todos;
 
   const [query, setQuery] = useState<string | boolean | null>(null);
-  const [completed, setCompleted] = useState(getDefaultCompletedState(page.url, "completed"));
+  const [completed, setCompleted] = useState(
+    getDefaultCompletedState(page.url, "completed"),
+  );
 
   const handleFilter = useCallback(() => {
     let queryString = {};
 
-    if (Boolean(query)) queryString = {...queryString, query};
-    if (completed !== "indeterminate") queryString = {...queryString, completed};
+    if (query) queryString = { ...queryString, query };
+
+    if (completed !== "indeterminate")
+      queryString = { ...queryString, completed };
 
     let searchParams = new URLSearchParams(queryString).toString();
-    searchParams = searchParams === "" ? "" : "?" + searchParams;
+    searchParams = searchParams === "" ? "" : `?${searchParams}`;
 
-    router.visit("/" + searchParams.toString());
-  }, [page, completed, query]);
+    router.visit(`/${searchParams.toString()}`);
+  }, [completed, query]);
 
   return (
     <>
       <Head>
         <title>Todo List</title>
-        <meta name="description"  content="Type whatever you think you gonna do later. We know you're not tho" />
+        <meta
+          name="description"
+          content="Type whatever you think you gonna do later. We know you're not tho"
+        />
       </Head>
 
       <main>
         <header className="mb-6 flex items-center justify-between">
-          <h1 className="font-black text-8xl text-purple-500">
-            Todo List
-          </h1>
+          <h1 className="font-black text-8xl text-purple-500">Todo List</h1>
 
           <search className="flex items-center gap-3">
             <label className="bg-white border-2 p-4 transition-all ring-purple-500 ring-0 focus-within:ring-4">
@@ -60,18 +73,19 @@ export default function Index() {
                 placeholder="Query something"
                 className={clsx(
                   "placeholder:font-bold placeholder:text-gray-400 text-lg",
-                  "border-none outline-none h-full w-full font-bold"
+                  "border-none outline-none h-full w-full font-bold",
                 )}
-                onInput={e => setQuery(e.currentTarget.value)}
+                onInput={(e) => setQuery(e.currentTarget.value)}
               />
             </label>
 
             <CheckboxTooltip
-              message={(
+              message={
                 <p>
-                  Filter by to-do task completed status. Let it on "indeterminate" mode for not applying the filter.
+                  Filter by to-do task completed status. Let it on
+                  "indeterminate" mode for not applying the filter.
                 </p>
-              )}
+              }
             >
               <FilterByCompletedStatusCheckbox
                 setState={setCompleted}
@@ -80,13 +94,14 @@ export default function Index() {
             </CheckboxTooltip>
 
             <button
+              type="button"
               className={clsx(
                 "text-lg font-bold text-white bg-sky-500 px-6 self-stretch transition-all",
                 "text-shadow-[3px_3px_0] text-shadow-blue-700 shadow-[4px_4px_0] shadow-black relative enabled:-top-1 enabled:-left-1",
                 "enabled:hover:-top-2 enabled:hover:-left-2 enabled:hover:shadow-[6px_6px_0] enabled:hover:shadow-blue-800",
                 "enabled:active:top-0 enabled:active:left-0 enabled:active:bg-sky-600 enabled:active:shadow-[2px_2px_0]",
                 "disabled:bg-gray-400 disabled:shadow-[2px_2px_0]",
-                "ring-inset ring-0 outline-none ring-blue-300 focus:ring-4"
+                "ring-inset ring-0 outline-none ring-blue-300 focus:ring-4",
               )}
               onClick={handleFilter}
             >
@@ -105,7 +120,7 @@ export default function Index() {
               There are no to-do tasks! Try creating one 💅🏼✨
             </span>
           )}
-          
+
           <div className="flex items-center justify-between">
             <Link
               href="/new"
@@ -114,16 +129,19 @@ export default function Index() {
                 "text-shadow-[4px_4px_0] text-shadow-green-800 transition-all relative left-0 top-0",
                 "hover:-left-1 hover:-top-1 hover:shadow-[10px_10px_0] hover:shadow-green-900",
                 "active:top-1 active:left-1 active:shadow-[2px_2px_0] active:shadow-black active:bg-green-700",
-                "outline-none ring-inset ring-0 ring-green-400 focus:ring-4"
+                "outline-none ring-inset ring-0 ring-green-400 focus:ring-4",
               )}
             >
               Create a to-do task
             </Link>
 
-            <TodoListingPagination pagination={todos.pagination} uri={page.url} />
+            <TodoListingPagination
+              pagination={todos.pagination}
+              uri={page.url}
+            />
           </div>
         </section>
       </main>
     </>
-  )
+  );
 }

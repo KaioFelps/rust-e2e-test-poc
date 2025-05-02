@@ -1,6 +1,6 @@
-import { Pagination } from "./pagination";
+import type { Pagination } from "./pagination";
 
 export type PaginatedEntitySet<T> = {
-    data: T[];
-    pagination: Pagination;
-}
+  data: T[];
+  pagination: Pagination;
+};

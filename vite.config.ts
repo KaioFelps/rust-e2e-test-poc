@@ -1,10 +1,10 @@
-import react from '@vitejs/plugin-react';
-import laravel from 'laravel-vite-plugin';
-import tailwind from "@tailwindcss/vite"
-import type { UserConfig } from 'vite';
+import react from "@vitejs/plugin-react";
+import laravel from "laravel-vite-plugin";
+import tailwind from "@tailwindcss/vite";
+import type { UserConfig } from "vite";
 
 import tsconfig from "./tsconfig.json";
-import path from 'path';
+import path from "path";
 
 export const tsconfigPathAliases = Object.fromEntries(
   Object.entries(tsconfig.compilerOptions.paths).map(([key, values]) => {
@@ -25,23 +25,22 @@ export const tsconfigPathAliases = Object.fromEntries(
   }),
 );
 
-
 export default {
-  plugins: [    
-      tailwind(),
-      laravel({
-          input: 'www/app.tsx',
-          buildDirectory: 'bundle',
-          ssrOutputDirectory: "dist/ssr",
-          //ssr: "www/ssr.tsx",
-      }),
-      react(),
+  plugins: [
+    tailwind(),
+    laravel({
+      input: "www/app.tsx",
+      buildDirectory: "bundle",
+      ssrOutputDirectory: "dist/ssr",
+      //ssr: "www/ssr.tsx",
+    }),
+    react(),
   ],
   publicDir: "/public",
   server: {
-      watch: {
-          ignored: ["*"]
-      }
+    watch: {
+      ignored: ["*"],
+    },
   },
   resolve: {
     alias: tsconfigPathAliases,

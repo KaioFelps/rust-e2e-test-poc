@@ -1,6 +1,6 @@
 import { NavItem } from "@/components/nav-item";
 import { TooltipProvider } from "@radix-ui/react-tooltip";
-import { PropsWithChildren } from "react";
+import type { PropsWithChildren } from "react";
 
 export function DefaultLayout({ children }: PropsWithChildren) {
   return (
