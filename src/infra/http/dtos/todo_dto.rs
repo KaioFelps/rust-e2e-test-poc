@@ -3,10 +3,23 @@ use validator::Validate;
 
 #[derive(Validate, Deserialize)]
 pub struct CreateTodoDto {
-    #[validate(required(message = "`title` is a mandatory field."))]
+    #[validate(
+        required(message = "`title` is a mandatory field."),
+        length(
+            min = 5,
+            max = 100,
+            message = "`title` must be 5 - 100 characters long."
+        )
+    )]
     pub title: Option<String>,
 
-    #[validate(required(message = "`content` is a mandatory field."))]
+    #[validate(
+        required(message = "`content` is a mandatory field."),
+        length(
+            max = 300,
+            message = "`content` cannot be more than 300 characters long."
+        )
+    )]
     pub content: Option<String>,
 }
 
