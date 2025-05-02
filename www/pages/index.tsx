@@ -1,3 +1,4 @@
+import { Button } from "@/components/button";
 import { CheckboxTooltip } from "@/components/checkbox-tooltip";
 import { H1 } from "@/components/h1";
 import { Main } from "@/components/main";
@@ -95,20 +96,13 @@ export default function Index() {
               />
             </CheckboxTooltip>
 
-            <button
+            <Button
               type="button"
-              className={clsx(
-                "text-lg font-bold text-white bg-sky-500 px-6 self-stretch transition-all",
-                "text-shadow-[3px_3px_0] text-shadow-blue-700 shadow-[4px_4px_0] shadow-black relative enabled:-top-1 enabled:-left-1",
-                "enabled:hover:-top-2 enabled:hover:-left-2 enabled:hover:shadow-[6px_6px_0] enabled:hover:shadow-blue-800",
-                "enabled:active:top-0 enabled:active:left-0 enabled:active:bg-sky-600 enabled:active:shadow-[2px_2px_0]",
-                "disabled:bg-gray-400 disabled:shadow-[2px_2px_0]",
-                "ring-inset ring-0 outline-none ring-blue-300 focus:ring-4",
-              )}
+              className="self-stretch "
               onClick={handleFilter}
             >
               Search
-            </button>
+            </Button>
           </search>
         </header>
 
@@ -124,18 +118,15 @@ export default function Index() {
           )}
 
           <div className="flex items-center justify-between">
-            <Link
-              href="/new"
-              className={clsx(
-                "block w-fit font-black text-3xl px-8 py-4 bg-green-600 text-white shadow-[6px_6px_0] shadow-black",
-                "text-shadow-[4px_4px_0] text-shadow-green-800 transition-all relative left-0 top-0",
-                "hover:-left-1 hover:-top-1 hover:shadow-[10px_10px_0] hover:shadow-green-900",
-                "active:top-1 active:left-1 active:shadow-[2px_2px_0] active:shadow-black active:bg-green-700",
-                "outline-none ring-inset ring-0 ring-green-400 focus:ring-4",
-              )}
+            <Button
+              asChild
+              className="block w-fit"
+              size="lg"
+              theme="success"
+              alwaysEnabled
             >
-              Create a to-do task
-            </Link>
+              <Link href="/new">Create a to-do task</Link>
+            </Button>
 
             <TodoListingPagination
               pagination={todos.pagination}
