@@ -3,6 +3,7 @@ use config::{
     datastore::get_datastore, inertia::get_inertia, options::Options, server::get_server,
     vite::get_vite,
 };
+use env_logger::Target;
 
 mod common;
 mod config;
@@ -12,7 +13,10 @@ mod infra;
 #[actix_web::main]
 async fn main() -> anyhow::Result<()> {
     dotenvy::dotenv().expect("Could not load environment variables.");
-    env_logger::builder().parse_env("RUST_LOG").build();
+    env_logger::builder()
+        .parse_env("RUST_LOG")
+        .target(Target::Stdout)
+        .init();
 
     let options = Options::get();
 
