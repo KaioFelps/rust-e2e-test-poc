@@ -17,6 +17,7 @@ pub struct DraftTodo {
     pub created_at: NaiveDateTime,
 }
 
+#[allow(unused)]
 impl Todo {
     pub fn draft(title: String, content: String) -> DraftTodo {
         DraftTodo {
