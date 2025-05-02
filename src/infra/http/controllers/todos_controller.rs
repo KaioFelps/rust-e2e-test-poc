@@ -4,6 +4,7 @@ use actix_web::{
 };
 use inertia_rust::{
     hashmap, validators::InertiaValidateOrRedirect, Inertia, InertiaFacade, InertiaProp,
+    InertiaService,
 };
 use validator::Validate;
 
@@ -36,7 +37,8 @@ pub struct TodosController;
 impl Controller for TodosController {
     fn register(cfg: &mut ServiceConfig) {
         cfg.route("/", web::get().to(Self::index))
-            .route("/create", web::post().to(Self::create));
+            .route("/create", web::post().to(Self::create))
+            .inertia_route("/new", "new");
     }
 }
 
