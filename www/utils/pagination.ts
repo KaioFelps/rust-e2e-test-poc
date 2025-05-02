@@ -50,8 +50,6 @@ export abstract class PaginationUtils {
   }: GeneratePaginationButtonsArgs) {
     const calculatedPages = [];
 
-    console.log(maxLeft, maxRight);
-
     for (let page = maxLeft; page <= maxRight; ++page) {
       calculatedPages.push(page);
     }
