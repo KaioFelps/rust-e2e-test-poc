@@ -8,7 +8,7 @@ pub async fn get_vite() -> anyhow::Result<Vite> {
         .set_entrypoints(vec!["www/app.tsx"])
         .set_prefix("bundle");
 
-    if *Options::get().get_environment() != RustEnv::Development {
+    if Options::get().environment != RustEnv::Development {
         vite_config = vite_config.set_force_mode(vite_rust::ViteMode::Manifest);
     }
 
