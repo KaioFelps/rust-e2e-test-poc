@@ -29,6 +29,9 @@ sqlx = { version = "0.8", features = [
   "chrono"
 ]}
 tokio = {version = "1.44", features = ["fs", "io-std", "test-util", "rt", "rt-multi-thread", "macros"]}
+rand = "0.9.1"
+futures-util = "0.3.31"
+base64 = "0.22.1"
 
 [dev-dependencies]
 pretty_assertions = "1"
