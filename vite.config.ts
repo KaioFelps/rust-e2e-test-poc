@@ -4,7 +4,7 @@ import tailwind from "@tailwindcss/vite";
 import type { UserConfig } from "vite";
 
 import tsconfig from "./tsconfig.json";
-import path from "path";
+import path from "node:path";
 
 export const tsconfigPathAliases = Object.fromEntries(
   Object.entries(tsconfig.compilerOptions.paths).map(([key, values]) => {
