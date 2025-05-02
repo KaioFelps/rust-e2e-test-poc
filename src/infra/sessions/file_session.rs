@@ -328,10 +328,14 @@ async fn file_should_be_cleaned(file: &DirEntry) -> bool {
 
 #[cfg(test)]
 mod tests {
+    use crate::config::options::Options;
+    use crate::test_utils::fixtures::loaded_options;
+
     use super::{inner_clean_expired_sessions, FileSessionStore};
     use actix_session::storage::{generate_session_key, LoadError, SessionStore};
     use actix_web::cookie::time;
     use inertia_rust::hashmap;
+    use rstest::rstest;
     use std::collections::HashMap;
     use tokio::{
         fs::{read_dir, remove_dir_all, File},
@@ -353,15 +357,17 @@ mod tests {
         file.flush().await.unwrap();
     }
 
+    #[rstest(loaded_options as _opts)]
     #[actix_web::test]
-    async fn loading_a_missing_session_returns_none() {
+    async fn loading_a_missing_session_returns_none(_opts: &Options) {
         let store = FileSessionStore::default();
         let session_key = generate_session_key();
         assert!(store.load(&session_key).await.unwrap().is_none());
     }
 
+    #[rstest(loaded_options as _opts)]
     #[actix_web::test]
-    async fn loading_an_invalid_session_state_returns_deserialization_error() {
+    async fn loading_an_invalid_session_state_returns_deserialization_error(_opts: &Options) {
         let store = FileSessionStore::default();
         store.maybe_create_session_directory().await;
 
@@ -380,8 +386,9 @@ mod tests {
         ));
     }
 
+    #[rstest(loaded_options as _opts)]
     #[actix_web::test]
-    async fn updating_of_an_expired_state_is_handled_gracefully() {
+    async fn updating_of_an_expired_state_is_handled_gracefully(_opts: &Options) {
         let store = FileSessionStore::default();
         store.maybe_create_session_directory().await;
 
@@ -395,8 +402,9 @@ mod tests {
         assert_ne!(initial_session_key, updated_session_key.as_ref());
     }
 
+    #[rstest(loaded_options as _opts)]
     #[actix_web::test]
-    async fn can_manipulate_non_expired_session() {
+    async fn can_manipulate_non_expired_session(_opts: &Options) {
         let store = FileSessionStore::default();
         store.maybe_create_session_directory().await;
 
@@ -424,8 +432,9 @@ mod tests {
         assert_eq!(initial_key, updated_key.as_ref());
     }
 
+    #[rstest(loaded_options as _opts)]
     #[actix_web::test]
-    async fn cannot_manipulate_expired_but_existing_session() {
+    async fn cannot_manipulate_expired_but_existing_session(_opts: &Options) {
         let store = FileSessionStore::default();
         store.maybe_create_session_directory().await;
 
@@ -455,8 +464,9 @@ mod tests {
         assert_ne!(initial_key, updated_key.as_ref());
     }
 
+    #[rstest(loaded_options as _opts)]
     #[actix_web::test]
-    async fn garbage_collector_will_remove_expired_sessions_only() {
+    async fn garbage_collector_will_remove_expired_sessions_only(_opts: &Options) {
         let sessions_dir = "storage/sessions/gc";
 
         // tries to remove the directory if it exists

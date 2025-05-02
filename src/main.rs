@@ -9,6 +9,8 @@ mod common;
 mod config;
 mod domain;
 mod infra;
+#[cfg(test)]
+mod test_utils;
 
 #[actix_web::main]
 async fn main() -> anyhow::Result<()> {
