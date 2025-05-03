@@ -4,7 +4,7 @@ of the endpoints, being it a simple view response or an action.
 
 ## Testing
 ```bash
-docker compose up -d
+docker compose --env-file .env.test up -d
 npm ci && npm run build # needed because tests rely on generated manifest.json
 cargo test
 ```
