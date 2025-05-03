@@ -1,4 +1,5 @@
 pub mod fixtures;
+pub mod helpers;
 pub mod setup;
 
 pub fn get_unique_db_schema() -> String {
